@@ -29,7 +29,7 @@ tasks:
       vars: [STAGE]
 
   playbook:site:
-    dir: "{{.USER_WORKING_DIR}}/2-ansible"
+    # dir: "{{.USER_WORKING_DIR}}/2-ansible"
     vars:
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
