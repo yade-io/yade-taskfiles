@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+silent: true
+
+tasks:
+  # ===============
+  # === ANSIBLE ===
+  # ===============
+  create:vm:
+    desc: "Create VM on orbstack"
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ORBSTACK_DIR: '{{default "orbstack" .ORBSTACK_DIR}}'
+      DISTRO: '{{default "ubuntu:jammy" .DISTRO}}'
+    cmds:
+      - echo ""
+      - echo "🚀 create:vm [ VM_NAME - {{.VM_NAME}}, ORBSTACK_DIR - {{.ORBSTACK_DIR}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - orb create --arch amd64 -c {{.ORBSTACK_DIR}}/user-data.yml {{.DISTRO}} {{.VM_NAME}}
+    requires:
+      vars: [VM_NAME]
