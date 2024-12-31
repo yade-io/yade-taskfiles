@@ -9,16 +9,16 @@ tasks:
   # ================
   create:vm:
     desc: "Create VM on orbstack"
-    dir: "{{.ORBSTACK_DIR}}"
+    # dir: "{{.ORBSTACK_DIR}}"
     vars:
-      ORBSTACK_DIR: '{{default "orbstack" .ORBSTACK_DIR}}'
+      USER_DATA_FILE: '{{default "user-data.yml" .USER_DATA_FILE}}'
       DISTRO: '{{default "ubuntu:jammy" .DISTRO}}'
     cmds:
       - echo ""
-      - echo "🚀 create:vm [ VM_NAME - {{.VM_NAME}}, ORBSTACK_DIR - {{.ORBSTACK_DIR}}, DISTRO - {{.DISTRO}}"
+      - echo "🚀 create:vm [ VM_NAME - {{.VM_NAME}}, USER_DATA_FILE - {{.USER_DATA_FILE}}, DISTRO - {{.DISTRO}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - orb create --arch amd64 -c {{.ORBSTACK_DIR}}/user-data.yml {{.DISTRO}} {{.VM_NAME}}
+      - orb create --arch amd64 -c {{.USER_DATA_FILE}} {{.DISTRO}} {{.VM_NAME}}
     requires:
       vars: [VM_NAME]
 
