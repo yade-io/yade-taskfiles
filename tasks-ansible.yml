@@ -18,7 +18,9 @@ tasks:
       vars: [STAGE]
 
   test:connectivity:
-    dir: "orbstack/bitwarden/2-ansible"
+    dir: "{{.PLAYBOOK_PATH}}"
+    vars:
+      PLAYBOOK_PATH: '{{default "path" .PLAYBOOK_PATH}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}} ]"
