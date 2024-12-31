@@ -7,7 +7,9 @@ tasks:
   # === ANSIBLE ===
   # ===============
   inventory:print:
-    dir: "{{.USER_WORKING_DIR}}/2-ansible"
+    dir: "{{.PLAYBOOK_PATH}}"
+    vars:
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}} ]"
@@ -20,7 +22,7 @@ tasks:
   test:connectivity:
     dir: "{{.PLAYBOOK_PATH}}"
     vars:
-      PLAYBOOK_PATH: '{{default "path" .PLAYBOOK_PATH}}'
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}} ]"
@@ -31,8 +33,9 @@ tasks:
       vars: [STAGE]
 
   playbook:site:
-    # dir: "{{.USER_WORKING_DIR}}/2-ansible"
+    dir: "{{.PLAYBOOK_PATH}}"
     vars:
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -43,8 +46,9 @@ tasks:
       vars: [STAGE]
 
   playbook:site:vars:
-    dir: "{{.USER_WORKING_DIR}}/2-ansible"
+    dir: "{{.PLAYBOOK_PATH}}"
     vars:
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -55,8 +59,9 @@ tasks:
       vars: [STAGE, VARIABLES]
 
   playbook:site:vars:tags:
-    dir: "{{.USER_WORKING_DIR}}/2-ansible"
+    dir: "{{.PLAYBOOK_PATH}}"
     vars:
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
