@@ -6,19 +6,6 @@ tasks:
   # ===============
   # === ANSIBLE ===
   # ===============
-  inventory:print:
-    dir: "{{.PLAYBOOK_PATH}}"
-    vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
-    cmds:
-      - echo ""
-      - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - ansible-inventory -i inventory/hosts_{{.STAGE}}.yml --graph --vars
-    requires:
-      vars: [STAGE]
-
   test:connectivity:
     dir: "{{.PLAYBOOK_PATH}}"
     vars:
@@ -32,6 +19,19 @@ tasks:
     requires:
       vars: [STAGE]
 
+  inventory:print:
+    dir: "{{.PLAYBOOK_PATH}}"
+    vars:
+      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - ansible-inventory -i inventory/hosts_{{.STAGE}}.yml --graph --vars
+    requires:
+      vars: [STAGE]
+
   playbook:site:
     dir: "{{.PLAYBOOK_PATH}}"
     vars:
@@ -40,7 +40,8 @@ tasks:
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - playbook:site [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-      - pwd
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}}
     requires:
       vars: [STAGE]
@@ -53,7 +54,8 @@ tasks:
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - playbook:site:vars [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}}, VARIABLES - {{.VARIABLES}} ]"
-      - pwd
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}"
     requires:
       vars: [STAGE, VARIABLES]
@@ -66,7 +68,8 @@ tasks:
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - playbook:site:vars:tags [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}}, VARIABLES - {{.VARIABLES}}, TAGS - {{.TAGS}} ]"
-      - pwd
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}" --tags "{{ .TAGS }}"
     requires:
       vars: [STAGE, VARIABLES, TAGS]
