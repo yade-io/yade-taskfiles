@@ -6,10 +6,23 @@ tasks:
   # ===============
   # === ANSIBLE ===
   # ===============
-  test:connectivity:
-    dir: "{{.PLAYBOOK_PATH}}"
+  install:requirements:
+    desc: "Install ansible requirements"
+    dir: "{{.ANSIBLE_DIR}}"
     vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+      ANSIBLE_DIR: '{{default "ansible" .ANSIBLE_DIR}}'
+      ANSIBLE_GALAXY_PATH: '{{default "../.venv/bin/ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
+    cmds:
+      - echo ""
+      - echo "🚀 create:venv [ VENV_DIR - {{.VENV_DIR}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
+
+  test:connectivity:
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}} ]"
@@ -20,9 +33,9 @@ tasks:
       vars: [STAGE]
 
   inventory:print:
-    dir: "{{.PLAYBOOK_PATH}}"
+    dir: "{{.ANSIBLE_DIR}}"
     vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}} ]"
@@ -33,9 +46,9 @@ tasks:
       vars: [STAGE]
 
   playbook:site:
-    dir: "{{.PLAYBOOK_PATH}}"
+    dir: "{{.ANSIBLE_DIR}}"
     vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -47,9 +60,9 @@ tasks:
       vars: [STAGE]
 
   playbook:site:vars:
-    dir: "{{.PLAYBOOK_PATH}}"
+    dir: "{{.ANSIBLE_DIR}}"
     vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -61,9 +74,9 @@ tasks:
       vars: [STAGE, VARIABLES]
 
   playbook:site:vars:tags:
-    dir: "{{.PLAYBOOK_PATH}}"
+    dir: "{{.ANSIBLE_DIR}}"
     vars:
-      PLAYBOOK_PATH: '{{default "." .PLAYBOOK_PATH}}'
+      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
