@@ -33,3 +33,15 @@ tasks:
         ignore_error: true
     requires:
       vars: [VM_NAME]
+
+  delete:vm:
+    desc: "Delete VM on orbstack"
+    cmds:
+      - echo ""
+      - echo "🚀 delete:vm [ VM_NAME - {{.VM_NAME}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - cmd: orb delete -f {{.VM_NAME}}
+        ignore_error: true
+    requires:
+      vars: [VM_NAME]
