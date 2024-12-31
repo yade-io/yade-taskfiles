@@ -33,7 +33,7 @@ tasks:
     requires:
       vars: [STAGE]
 
-  inventory:print:
+  print:inventory:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'

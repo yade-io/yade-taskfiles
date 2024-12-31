@@ -9,7 +9,7 @@ tasks:
   # ===============
   create:vm:
     desc: "Create VM on orbstack"
-    dir: "{{.ANSIBLE_DIR}}"
+    dir: "{{.ORBSTACK_DIR}}"
     vars:
       ORBSTACK_DIR: '{{default "orbstack" .ORBSTACK_DIR}}'
       DISTRO: '{{default "ubuntu:jammy" .DISTRO}}'
@@ -19,5 +19,17 @@ tasks:
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - orb create --arch amd64 -c {{.ORBSTACK_DIR}}/user-data.yml {{.DISTRO}} {{.VM_NAME}}
+    requires:
+      vars: [VM_NAME]
+
+  stop:vm:
+    desc: "Stop VM on orbstack"
+    cmds:
+      - echo ""
+      - echo "🚀 stop:vm [ VM_NAME - {{.VM_NAME}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - cmd: orb stop {{.VM_NAME}}
+        ignore_error: true
     requires:
       vars: [VM_NAME]
