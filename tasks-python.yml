@@ -17,7 +17,7 @@ tasks:
       - echo "🚀 create:venv [ VENV_DIR - {{.VENV_DIR}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      # - python3 -m venv {{.VENV_DIR}}
+      - python3 -m venv {{.VENV_DIR}}
 
   install:requirements:
     desc: "Install python pip requirements"
