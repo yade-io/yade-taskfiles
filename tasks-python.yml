@@ -1,0 +1,19 @@
+version: 3
+
+silent: true
+
+tasks:
+  # ==============
+  # === PYTHON ===
+  # ==============
+  create:venv:
+    desc: "Create Python Virtual Environment"
+    dir: "{{.USER_WORKING_DIR}}"
+    vars:
+      VENV_DIR: '{{default ".venv" .VENV_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 create:venv [ VENV_DIR - {{.VENV_DIR}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - python3 -m venv {{.VENV_DIR}}

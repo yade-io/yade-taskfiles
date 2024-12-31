@@ -1,0 +1,145 @@
+version: 3
+
+silent: true
+
+tasks:
+  # ================
+  # === SOFTWARE ===
+  # ================
+  install:gitops:
+    desc: Install the gitops CLI
+    vars:
+      UNAME:
+        sh: uname | tr '[:upper:]' '[:lower:]'
+      PLATFORM:
+        sh: uname -m
+    cmds:
+      - echo "  Install gitops CLI {{.GITOPS_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/gitops.tar.gz https://github.com/weaveworks/weave-gitops/releases/download/v0.38.0/gitops-{{.UNAME}}-{{.PLATFORM}}.tar.gz
+      - rm -rf {{.INSTALL_DIR}}/gitops-*
+      - mkdir -p {{.INSTALL_DIR}}/gitops-{{.GITOPS_VERSION}}/
+      - tar -xzf {{.INSTALL_DIR}}/gitops.tar.gz -C {{.INSTALL_DIR}}/gitops-{{.GITOPS_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-gitops.sh <<EOL
+        export GITOPS_HOME=\${YADE_PROJECT_SOFTWARE}/gitops-{{.GITOPS_VERSION}}
+        export PATH="\${GITOPS_HOME}:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-gitops.sh
+      - rm -rf {{.INSTALL_DIR}}/gitops.tar.gz
+    requires:
+      vars: [INSTALL_DIR, GITOPS_VERSION]
+
+  install:helm:
+    desc: Install the helm CLI
+    vars:
+      UNAME:
+        sh: uname | tr '[:upper:]' '[:lower:]'
+      PLATFORM:
+        sh: uname -m
+    cmds:
+      - echo "  Install helm CLI {{.HELM_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/helm.tar.gz https://get.helm.sh/helm-v{{.HELM_VERSION}}-{{.UNAME}}-{{.PLATFORM}}.tar.gz
+      - rm -rf {{.INSTALL_DIR}}/helm-*
+      - mkdir -p {{.INSTALL_DIR}}/helm-{{.HELM_VERSION}}/
+      - tar -xzf {{.INSTALL_DIR}}/helm.tar.gz -C {{.INSTALL_DIR}}/helm-{{.HELM_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-helm.sh <<EOL
+        export HELM_HOME=\${YADE_PROJECT_SOFTWARE}/helm-{{.HELM_VERSION}}/{{.UNAME}}-{{.PLATFORM}}
+        export PATH="\${HELM_HOME}:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-helm.sh
+      - rm -rf {{.INSTALL_DIR}}/helm.tar.gz
+    requires:
+      vars: [INSTALL_DIR, HELM_VERSION]
+
+  install:flux:
+    desc: Install the flux CLI
+    vars:
+      UNAME:
+        sh: uname | tr '[:upper:]' '[:lower:]'
+      PLATFORM:
+        sh: uname -m
+    cmds:
+      - echo "  Install flux CLI {{.FLUX_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/flux.tar.gz https://github.com/fluxcd/flux2/releases/download/v{{.FLUX_VERSION}}/flux_{{.FLUX_VERSION}}_{{.UNAME}}_{{.PLATFORM}}.tar.gz
+      - rm -rf {{.INSTALL_DIR}}/flux-*
+      - mkdir -p {{.INSTALL_DIR}}/flux-{{.FLUX_VERSION}}
+      - tar -xzf {{.INSTALL_DIR}}/flux.tar.gz -C {{.INSTALL_DIR}}/flux-{{.FLUX_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-flux.sh <<EOL
+        export FLUX_HOME=\${YADE_PROJECT_SOFTWARE}/flux-{{.FLUX_VERSION}}
+        export PATH="\${FLUX_HOME}:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-flux.sh
+      - rm -rf {{.INSTALL_DIR}}/flux.tar.gz
+    requires:
+      vars: [INSTALL_DIR, FLUX_VERSION]
+
+  install:terraform-docs:
+    desc: Install the terraform-docs CLI
+    vars:
+      LATEST_VERSION:
+        sh: curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | jq -r '.tag_name'
+      UNAME:
+        sh: uname
+    cmds:
+      - echo "  Install terraform-docs CLI {{.LATEST_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/{{.LATEST_VERSION}}/terraform-docs-{{.LATEST_VERSION}}-{{.UNAME}}-amd64.tar.gz
+      - rm -rf {{.INSTALL_DIR}}/terraform-docs-*
+      - mkdir -p {{.INSTALL_DIR}}/terraform-docs-{{.LATEST_VERSION}}
+      - tar -xzf {{.INSTALL_DIR}}/terraform-docs.tar.gz -C {{.INSTALL_DIR}}/terraform-docs-{{.LATEST_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-terraform-docs.sh <<EOL
+        export TERRAFORM_DOCS_HOME=\${YADE_PROJECT_SOFTWARE}/terraform-docs-{{.LATEST_VERSION}}
+        export PATH="\${TERRAFORM_DOCS_HOME}:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-terraform-docs.sh
+      - rm -rf {{.INSTALL_DIR}}/terraform-docs.tar.gz
+    requires:
+      vars: [INSTALL_DIR]
+
+  install:tflint:
+    desc: Install the tflint CLI
+    vars:
+      LATEST_VERSION:
+        sh: curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | jq -r '.tag_name'
+      UNAME:
+        sh: uname
+    cmds:
+      - echo "  Install tflint CLI {{.LATEST_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/tflint.zip https://github.com/terraform-linters/tflint/releases/download/{{.LATEST_VERSION}}/tflint_{{.UNAME}}_amd64.zip
+      - rm -rf {{.INSTALL_DIR}}/tflint-*
+      - mkdir -p {{.INSTALL_DIR}}/tflint-{{.LATEST_VERSION}}
+      - unzip -q {{.INSTALL_DIR}}/tflint.zip -d {{.INSTALL_DIR}}/tflint-{{.LATEST_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-tflint.sh <<EOL
+        export TFLINT_HOME=\${YADE_PROJECT_SOFTWARE}/tflint-{{.LATEST_VERSION}}
+        export PATH="\${TFLINT_HOME}:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-tflint.sh
+      - rm -rf {{.INSTALL_DIR}}/tflint.zip
+    requires:
+      vars: [INSTALL_DIR]
+
+  install:glab:
+    desc: Install the glab CLI
+    vars:
+      LATEST_VERSION:
+        sh: curl -s https://gitlab.com/api/v4/projects/34675721/releases/ | jq '.[]' | jq -r '.name' | head -1 | sed 's/v//'
+      UNAME:
+        sh: "uname | tr '[:upper:]' '[:lower:]'"
+    cmds:
+      - echo "  Install glab CLI {{.LATEST_VERSION}}"
+      - wget -q -O {{.INSTALL_DIR}}/glab.tar.gz https://gitlab.com/gitlab-org/cli/-/releases/v{{.LATEST_VERSION}}/downloads/glab_{{.LATEST_VERSION}}_{{.UNAME}}_amd64.tar.gz
+      - rm -rf {{.INSTALL_DIR}}/glab-*
+      - mkdir -p {{.INSTALL_DIR}}/glab-{{.LATEST_VERSION}}
+      - tar -xzf {{.INSTALL_DIR}}/glab.tar.gz -C {{.INSTALL_DIR}}/glab-{{.LATEST_VERSION}}
+      - |
+        cat >{{.INSTALL_DIR}}/set-env-glab.sh <<EOL
+        export GLAB_HOME=\${YADE_PROJECT_SOFTWARE}/glab-{{.LATEST_VERSION}}
+        export PATH="\${GLAB_HOME}/bin:\$PATH"
+        EOL
+      - chmod +x {{.INSTALL_DIR}}/set-env-glab.sh
+      - rm -rf {{.INSTALL_DIR}}/glab.tar.gz
+    requires:
+      vars: [INSTALL_DIR]

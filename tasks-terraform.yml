@@ -1,0 +1,96 @@
+version: 3
+
+silent: true
+
+tasks:
+  # =================
+  # === TERRAFORM ===
+  # =================
+  init:
+    desc: "Terraform initialize"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - init [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform init -upgrade
+    requires:
+      vars: [STAGE]
+
+  plan:
+    desc: "Terraform plan"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform plan -out=tfplan
+    requires:
+      vars: [STAGE]
+
+  show:
+    desc: "Terraform show"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - show [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform show -json tfplan > tfplan.tfgraph
+    requires:
+      vars: [STAGE]
+
+  apply:
+    desc: "Terraform apply"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    prompt: Do you realy want to apply the changes from tfplan?
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - apply [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform apply tfplan
+    requires:
+      vars: [STAGE]
+
+  destroy:
+    desc: "Terraform destroy"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - destroy [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform destroy
+    requires:
+      vars: [STAGE]
+
+  test:
+    desc: Run all tests
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - test [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - tflint
+      - terraform validate
+      - echo ""
+      - terraform fmt -check -diff -recursive
+      - echo ""
+    requires:
+      vars: [STAGE]
