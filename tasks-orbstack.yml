@@ -15,7 +15,7 @@ tasks:
       DISTRO: '{{default "ubuntu:jammy" .DISTRO}}'
     cmds:
       - echo ""
-      - echo "🚀 create:vm [ VM_NAME - {{.VM_NAME}}, ORBSTACK_DIR - {{.ORBSTACK_DIR}}"
+      - echo "🚀 create:vm [ VM_NAME - {{.VM_NAME}}, ORBSTACK_DIR - {{.ORBSTACK_DIR}}, DISTRO - {{.DISTRO}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - orb create --arch amd64 -c {{.ORBSTACK_DIR}}/user-data.yml {{.DISTRO}} {{.VM_NAME}}
