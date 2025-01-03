@@ -15,7 +15,7 @@ tasks:
       ANSIBLE_GALAXY_PATH: '{{default "../.venv/bin/ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
     cmds:
       - echo ""
-      - echo "🚀 create:venv [ VENV_DIR - {{.VENV_DIR}}"
+      - echo "🚀 install:requirements [ ANSIBLE_DIR - {{.ANSIBLE_DIR}}, ANSIBLE_GALAXY_PATH - {{.ANSIBLE_GALAXY_PATH}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
@@ -26,7 +26,7 @@ tasks:
       ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}} ]"
+      - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible -i inventory/hosts_{{.STAGE}}.yml -m ping all
@@ -39,7 +39,7 @@ tasks:
       ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}} ]"
+      - echo "🚀 tasks-ansible - print:inventory [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible-inventory -i inventory/hosts_{{.STAGE}}.yml --graph --vars
@@ -53,7 +53,7 @@ tasks:
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - playbook:site [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}} ]"
+      - echo "🚀 tasks-ansible - playbook:site [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}}
@@ -67,7 +67,7 @@ tasks:
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - playbook:site:vars [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}}, VARIABLES - {{.VARIABLES}} ]"
+      - echo "🚀 tasks-ansible - playbook:site:vars [ STAGE - {{.STAGE}}, VARIABLES - {{.VARIABLES}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}"
@@ -81,7 +81,7 @@ tasks:
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - playbook:site:vars:tags [ STAGE - {{.STAGE}}, PLAYBOOK - {{.PLAYBOOK}}, VARIABLES - {{.VARIABLES}}, TAGS - {{.TAGS}} ]"
+      - echo "🚀 tasks-ansible - playbook:site:vars:tags [ STAGE - {{.STAGE}}, VARIABLES - {{.VARIABLES}}, TAGS - {{.TAGS}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}" --tags "{{ .TAGS }}"

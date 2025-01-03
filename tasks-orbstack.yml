@@ -9,7 +9,6 @@ tasks:
   # ================
   create:vm:
     desc: "Create VM on orbstack"
-    # dir: "{{.ORBSTACK_DIR}}"
     vars:
       USER_DATA_FILE: '{{default "user-data.yml" .USER_DATA_FILE}}'
       DISTRO: '{{default "ubuntu:jammy" .DISTRO}}'
