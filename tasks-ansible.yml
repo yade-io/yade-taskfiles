@@ -16,7 +16,7 @@ tasks:
       # ANSIBLE_GALAXY_PATH: '{{default "../.venv/bin/ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
     cmds:
       - echo ""
-      - echo "🚀 install:requirements [ ANSIBLE_DIR - {{.ANSIBLE_DIR}}, ANSIBLE_GALAXY_PATH - {{.ANSIBLE_GALAXY_PATH}}"
+      - echo "🚀 tasks-ansible - install:requirements [ ANSIBLE_DIR - {{.ANSIBLE_DIR}}, ANSIBLE_GALAXY_PATH - {{.ANSIBLE_GALAXY_PATH}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
