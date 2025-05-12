@@ -12,7 +12,6 @@ tasks:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-      # ANSIBLE_GALAXY_PATH: '{{default "ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
       ANSIBLE_GALAXY_PATH: '{{default "../.venv/bin/ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
     cmds:
       - echo ""
