@@ -20,7 +20,7 @@ tasks:
       - echo ""
       - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
 
-  test:connectivity:
+  connectivity:test:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
