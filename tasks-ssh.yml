@@ -21,7 +21,7 @@ tasks:
     requires:
       vars: [STAGE]
 
-  test:connect:
+  connect:
     desc: "SSH connect"
     vars:
       HOST_IP:
