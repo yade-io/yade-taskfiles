@@ -21,6 +21,20 @@ tasks:
     requires:
       vars: [STAGE]
 
+  validate:
+    desc: "Terraform validate"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - validate [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - terraform validate
+    requires:
+      vars: [STAGE]
+
   plan:
     desc: "Terraform plan"
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
