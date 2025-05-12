@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+silent: true
+
+tasks:
+  # ===========
+  # === SSH ===
+  # ===========
+  test:connectivity:
+    desc: "Test SSH connectivity"
+    vars:
+      HOST_IP:
+        sh: cd 1-terraform && terraform output -raw vm_ip
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ssh - test:connectivity [ HOST_IP - {{.HOST_IP}}"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      # - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
