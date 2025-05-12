@@ -28,7 +28,7 @@ tasks:
         sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_ip
     cmds:
       - echo ""
-      - echo "🚀 tasks-ssh - test:connect [ HOST_IP - {{.HOST_IP}}"
+      - echo "🚀 tasks-ssh - connect [ HOST_IP - {{.HOST_IP}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}}
