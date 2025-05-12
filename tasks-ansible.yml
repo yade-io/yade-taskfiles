@@ -23,7 +23,7 @@ tasks:
   test:connectivity:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
-      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
@@ -36,7 +36,7 @@ tasks:
   print:inventory:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
-      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-ansible - print:inventory [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
@@ -49,7 +49,7 @@ tasks:
   playbook:site:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
-      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -63,7 +63,7 @@ tasks:
   playbook:site:vars:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
-      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
@@ -74,10 +74,24 @@ tasks:
     requires:
       vars: [STAGE, VARIABLES]
 
+  playbook:site:tags:
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
+      PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ansible - playbook:site:tags [ STAGE - {{.STAGE}}, TAGS - {{.TAGS}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} --tags "{{ .TAGS }}"
+    requires:
+      vars: [STAGE, TAGS]
+
   playbook:site:vars:tags:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
-      ANSIBLE_DIR: '{{default "." .ANSIBLE_DIR}}'
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
       PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
     cmds:
       - echo ""
