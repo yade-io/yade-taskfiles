@@ -11,10 +11,12 @@ tasks:
     desc: "Test SSH connectivity"
     vars:
       HOST_IP:
-        sh: cd 1-terraform && terraform output -raw vm_ip
+        sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_ip
     cmds:
       - echo ""
       - echo "🚀 tasks-ssh - test:connectivity [ HOST_IP - {{.HOST_IP}}"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      # - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
+      - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"
+    requires:
+      vars: [STAGE]
