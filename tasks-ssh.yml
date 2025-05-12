@@ -7,7 +7,7 @@ tasks:
   # ===========
   # === SSH ===
   # ===========
-  test:connectivity:
+  connectivity:test:
     desc: "Test SSH connectivity"
     vars:
       HOST_IP:
