@@ -45,7 +45,7 @@ tasks:
       - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform plan -out=tfplan
+      - terraform plan -out=.terraform/tfplan
     requires:
       vars: [STAGE]
 
@@ -59,14 +59,13 @@ tasks:
       - echo "🚀 tasks-terraform - show [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform show -json tfplan > tfplan.tfgraph
+      - terraform show -json .terraform/tfplan > tfplan.tfgraph
     requires:
       vars: [STAGE]
 
   apply:
     desc: "Terraform apply"
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
-    prompt: Do you realy want to apply the changes from tfplan?
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
     cmds:
@@ -74,7 +73,7 @@ tasks:
       - echo "🚀 tasks-terraform - apply [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform apply tfplan
+      - terraform apply .terraform/tfplan
     requires:
       vars: [STAGE]
 
