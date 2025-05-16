@@ -45,7 +45,7 @@ tasks:
       - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform plan -out=.terraform/tfplan
+      - terraform plan -var-file=proxmox.tfvars -out=.terraform/tfplan
     requires:
       vars: [STAGE]
 
@@ -59,7 +59,7 @@ tasks:
       - echo "🚀 tasks-terraform - show [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform show -json .terraform/tfplan > tfplan.tfgraph
+      - terraform show -var-file=proxmox.tfvars -json .terraform/tfplan > tfplan.tfgraph
     requires:
       vars: [STAGE]
 
@@ -73,7 +73,7 @@ tasks:
       - echo "🚀 tasks-terraform - apply [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform apply .terraform/tfplan
+      - terraform apply -var-file=proxmox.tfvars .terraform/tfplan
     requires:
       vars: [STAGE]
 
