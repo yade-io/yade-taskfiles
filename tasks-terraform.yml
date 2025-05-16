@@ -28,7 +28,7 @@ tasks:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-terraform - init [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - echo "🚀 tasks-terraform - init:backend [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - |
