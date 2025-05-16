@@ -21,6 +21,30 @@ tasks:
     requires:
       vars: [STAGE]
 
+  init:backend:
+    desc: "Terraform initialize"
+    dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
+    vars:
+      TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-terraform - init [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - |
+        echo "terraform init -upgrade \
+          TF_HTTP_ADDRESS=\"https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME\"
+          TF_HTTP_LOCK_ADDRESS=\"https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME/lock\"
+          TF_HTTP_LOCK_METHOD=\"POST\"
+          TF_HTTP_UNLOCK_ADDRESS=\"https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME/lock\"
+          TF_HTTP_UNLOCK_METHOD=\"DELETE\"
+          TF_HTTP_USERNAME=\"${TF_HTTP_USERNAME}\"
+          TF_HTTP_PASSWORD=\"${TF_HTTP_PASSWORD}\"
+          TF_HTTP_RETRY_WAIT_MIN=\"5\""
+
+    requires:
+      vars: [STAGE, GITLAB_HOST]
+
   validate:
     desc: "Terraform validate"
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
@@ -45,7 +69,7 @@ tasks:
       - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform plan -var-file=proxmox.tfvars -out=.terraform/tfplan
+      - terraform plan -out=.terraform/tfplan
     requires:
       vars: [STAGE]
 
@@ -59,7 +83,7 @@ tasks:
       - echo "🚀 tasks-terraform - show [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform show -var-file=proxmox.tfvars -json .terraform/tfplan > tfplan.tfgraph
+      - terraform show -json .terraform/tfplan > tfplan.tfgraph
     requires:
       vars: [STAGE]
 
@@ -73,7 +97,7 @@ tasks:
       - echo "🚀 tasks-terraform - apply [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - terraform apply -var-file=proxmox.tfvars .terraform/tfplan
+      - terraform apply .terraform/tfplan
     requires:
       vars: [STAGE]
 
