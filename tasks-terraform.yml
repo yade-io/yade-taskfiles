@@ -33,16 +33,16 @@ tasks:
       - echo ""
       - |
         terraform init -upgrade -reconfigure \
-          -backend-config=address="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE" \
-          -backend-config=lock_address="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE/lock" \
+          -backend-config=address="https://{{.GITLAB_HOST}}/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/$STAGE" \
+          -backend-config=lock_address="https://{{.GITLAB_HOST}}/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/$STAGE/lock" \
           -backend-config=lock_method="POST" \
-          -backend-config=unlock_address="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE/lock" \
+          -backend-config=unlock_address="https://{{.GITLAB_HOST}}/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/$STAGE/lock" \
           -backend-config=unlock_method="DELETE" \
           -backend-config=username="{{.HTTP_USERNAME}}" \
           -backend-config=password="{{.HTTP_PASSWORD}}" \
           -backend-config=retry_wait_min="5"
     requires:
-      vars: [STAGE, GITLAB_HOST, HTTP_USERNAME, HTTP_PASSWORD]
+      vars: [STAGE, GITLAB_HOST, HTTP_USERNAME, HTTP_PASSWORD, GITLAB_PROJECT_ID]
 
   validate:
     desc: "Terraform validate"
