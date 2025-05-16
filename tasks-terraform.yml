@@ -32,7 +32,7 @@ tasks:
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - |
-        terraform init -upgrade \
+        terraform init -upgrade -migrate-state \
           -backend-config=address="https://{{.GITLAB_HOST}}/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/{{.STAGE}}" \
           -backend-config=username="{{.HTTP_USERNAME}}" \
           -backend-config=password="{{.HTTP_PASSWORD}}" \
