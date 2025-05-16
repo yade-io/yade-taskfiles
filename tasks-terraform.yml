@@ -28,7 +28,7 @@ tasks:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-terraform - init:backend [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+      - echo "🚀 tasks-terraform - init:backend [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}}, GITLAB_HOST - {{.GITLAB_HOST}}, HTTP_USERNAME - {{.HTTP_USERNAME}}, HTTP_PASSWORD - ***, GITLAB_PROJECT_ID - {{.GITLAB_PROJECT_ID}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - |
