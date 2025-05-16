@@ -33,16 +33,16 @@ tasks:
       - echo ""
       - |
         terraform init -upgrade \
-          TF_HTTP_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME" \
-          TF_HTTP_LOCK_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME/lock" \
+          TF_HTTP_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE" \
+          TF_HTTP_LOCK_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE/lock" \
           TF_HTTP_LOCK_METHOD="POST" \
-          TF_HTTP_UNLOCK_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$ENV_NAME/lock" \
+          TF_HTTP_UNLOCK_ADDRESS="https://{{.GITLAB_HOST}}/api/v4/projects/${CI_PROJECT_ID}/terraform/state/$STAGE/lock" \
           TF_HTTP_UNLOCK_METHOD="DELETE" \
-          TF_HTTP_USERNAME="${TF_HTTP_USERNAME}" \
-          TF_HTTP_PASSWORD="${TF_HTTP_PASSWORD}" \
+          TF_HTTP_USERNAME="{{.HTTP_USERNAME}}" \
+          TF_HTTP_PASSWORD="{{.HTTP_PASSWORD}}" \
           TF_HTTP_RETRY_WAIT_MIN="5"
     requires:
-      vars: [STAGE, GITLAB_HOST]
+      vars: [STAGE, GITLAB_HOST, HTTP_USERNAME, HTTP_PASSWORD]
 
   validate:
     desc: "Terraform validate"
