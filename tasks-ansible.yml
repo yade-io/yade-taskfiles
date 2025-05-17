@@ -136,7 +136,7 @@ tasks:
         ansible-playbook \
           -e environment_type={{.STAGE}} \
           -e environment_name=sflab-docker-{{.STAGE}} \
-          -e "{{ .VARIABLES }}"
+          -e "{{ .VARIABLES }}" \
           -e ssh_private_key_file=~/.ssh/id_rsa \
           -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
           --private-key=~/.ssh/id_rsa \
@@ -173,7 +173,6 @@ tasks:
         ansible-playbook \
           -e environment_type={{.STAGE}} \
           -e environment_name=sflab-docker-{{.STAGE}} \
-          -e "{{ .VARIABLES }}"
           -e ssh_private_key_file=~/.ssh/id_rsa \
           -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
           --private-key=~/.ssh/id_rsa \
