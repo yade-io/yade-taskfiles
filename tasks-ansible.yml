@@ -55,6 +55,8 @@ tasks:
       - echo "🚀 tasks-ansible - inventory:print:tbc [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
+      - cd ../1-terraform/environment/{{.STAGE}}
+      - ls -al
       - ansible-inventory -i ../1-terraform/environment/{{.STAGE}}/tf_output/ansible_inventory.yml --graph --vars
     requires:
       vars: [STAGE]
