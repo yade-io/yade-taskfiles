@@ -39,10 +39,23 @@ tasks:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - print:inventory [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
+      - echo "🚀 tasks-ansible - inventory:print [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible-inventory -i inventory/hosts_{{.STAGE}}.yml --graph --vars
+    requires:
+      vars: [STAGE]
+
+  inventory:print:tbc:
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ansible - inventory:print:tbc [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - ansible-inventory -i ../1-terraform/environment/{{.STAGE}}/tf_output/ansible_inventory.yml --graph --vars
     requires:
       vars: [STAGE]
 
