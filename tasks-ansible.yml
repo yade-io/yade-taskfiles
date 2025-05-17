@@ -26,10 +26,23 @@ tasks:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 tasks-ansible - test:connectivity [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
+      - echo "🚀 tasks-ansible - connectivity:test [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - ansible -i inventory/hosts_{{.STAGE}}.yml -m ping all
+    requires:
+      vars: [STAGE]
+
+  connectivity:test:tbc:
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ansible - connectivity:test:tbc [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - ansible -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml -m ping all
     requires:
       vars: [STAGE]
 
@@ -92,15 +105,6 @@ tasks:
           --private-key=~/.ssh/id_rsa \
           --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
           "site.yml"
-      # - |
-      #   ansible-playbook \
-      #     -e environment_type={{.STAGE}} \
-      #     -e environment_name=sflab-docker-{{.STAGE}} \
-      #     -e ssh_private_key_file=.ansible_private_key \
-      #     -e ANSIBLE_SSH_PRIVATE_KEY_FILE=.ansible_private_key \
-      #     --private-key=.ansible_private_key \
-      #     --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
-      #     "site.yml"
     requires:
       vars: [STAGE]
 
