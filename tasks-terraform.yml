@@ -21,7 +21,7 @@ tasks:
     requires:
       vars: [STAGE]
 
-  init:backend:
+  init:tbc:
     desc: "Terraform initialize"
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
     vars:
