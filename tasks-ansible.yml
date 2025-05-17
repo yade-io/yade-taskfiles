@@ -73,6 +73,37 @@ tasks:
     requires:
       vars: [STAGE]
 
+  playbook:site:tbc:
+    dir: "{{.ANSIBLE_DIR}}"
+    vars:
+      ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
+      PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
+    cmds:
+      - echo ""
+      - echo "🚀 tasks-ansible - playbook:site [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
+      - 'echo "   cwd: $(pwd)"'
+      - echo ""
+      - |
+        ansible-playbook \
+          -e environment_type={{.STAGE}} \
+          -e environment_name=sflab-docker-{{.STAGE}} \
+          -e ssh_private_key_file=~/.ssh/id_rsa \
+          -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
+          --private-key=~/.ssh/id_rsa \
+          --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
+          "site.yml"
+      # - |
+      #   ansible-playbook \
+      #     -e environment_type={{.STAGE}} \
+      #     -e environment_name=sflab-docker-{{.STAGE}} \
+      #     -e ssh_private_key_file=.ansible_private_key \
+      #     -e ANSIBLE_SSH_PRIVATE_KEY_FILE=.ansible_private_key \
+      #     --private-key=.ansible_private_key \
+      #     --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
+      #     "site.yml"
+    requires:
+      vars: [STAGE]
+
   playbook:site:vars:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
