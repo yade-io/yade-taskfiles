@@ -15,7 +15,7 @@ tasks:
       VENV_DIR: '{{default ".venv" .VENV_DIR}}'
     cmds:
       - echo ""
-      - echo "🚀 create:venv [ WORKING_DIR - {{.WORKING_DIR}}, VENV_DIR - {{.VENV_DIR}}"
+      - echo "🚀 create:venv [ WORKING_DIR - {{.WORKING_DIR}}, VENV_DIR - {{.VENV_DIR}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - python3 -m venv {{.VENV_DIR}}
@@ -28,7 +28,7 @@ tasks:
       PIP_PATH: '{{default ".venv/bin/pip" .PIP_PATH}}'
     cmds:
       - echo ""
-      - echo "🚀 install:requirements [ WORKING_DIR - {{.WORKING_DIR}}, PIP_PATH - {{.PIP_PATH}}"
+      - echo "🚀 install:requirements [ WORKING_DIR - {{.WORKING_DIR}}, PIP_PATH - {{.PIP_PATH}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
       - "{{.PIP_PATH}} install -r requirements.txt"
