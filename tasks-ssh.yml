@@ -14,9 +14,10 @@ tasks:
         sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_ip
     cmds:
       - echo ""
-      - echo "🚀 tasks-ssh - connectivity:test [ HOST_IP - {{.HOST_IP}} ]" 
+      - echo "🚀 tasks-ssh - connectivity:test [ HOST_IP - {{.HOST_IP}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
+      - echo 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"'
       - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"
     requires:
       vars: [STAGE]
