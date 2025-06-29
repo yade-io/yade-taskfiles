@@ -64,7 +64,9 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
-      VAR_FILE_ARGS: '{{if (fileExists (printf "%s/environment/%s/%s.tfvars" .TERRAFORM_DIR .STAGE .STAGE)) (printf "-var-file=%s.tfvars" .STAGE) ""}}'
+      VAR_FILE_ARGS:
+        sh: 'echo "xxx"'
+      # VAR_FILE_ARGS: '{{if (fileExists (printf "%s/environment/%s/%s.tfvars" .TERRAFORM_DIR .STAGE .STAGE)) (printf "-var-file=%s.tfvars" .STAGE) ""}}'
     cmds:
       - echo ""
       - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, VAR_FILE_ARGS - {{.VAR_FILE_ARGS}}, STAGE - {{.STAGE}} ]"
