@@ -80,7 +80,7 @@ tasks:
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
-        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/{{.STAGE}}.tfvars" ]; then echo "-var-file={{.STAGE}}.tfvars"; else echo ""; fi'
+        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
     cmds:
       - |
         if [ "$SKIP_TERRAFORM" == "true" ]; then
@@ -102,7 +102,7 @@ tasks:
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
-        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/{{.STAGE}}.tfvars" ]; then echo "-var-file={{.STAGE}}.tfvars"; else echo ""; fi'
+        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
     cmds:
       - |
         if [ "$SKIP_TERRAFORM" == "true" ]; then
@@ -157,7 +157,7 @@ tasks:
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
-        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/{{.STAGE}}.tfvars" ]; then echo "-var-file={{.STAGE}}.tfvars"; else echo ""; fi'
+        sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
     cmds:
       - |
         echo ""
