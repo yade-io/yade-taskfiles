@@ -4,21 +4,19 @@ version: 3
 silent: true
 
 tasks:
-  # ===========
-  # === SSH ===
-  # ===========
   connectivity:test:
     desc: "Test SSH connectivity"
     vars:
       HOST_IP:
-        sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_ip
+        sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_public_ipv4
+      COMMAND: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"
     cmds:
       - echo ""
-      - echo "🚀 tasks-ssh - connectivity:test [ HOST_IP - {{.HOST_IP}} ]"
+      - echo "🚀 tasks-ssh - {{.TAKS}} [ HOST_IP - {{.HOST_IP}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - echo 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"'
-      - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"
+      - echo {{.COMMAND}}
+      - "{{.COMMAND}}"
     requires:
       vars: [STAGE]
 
@@ -26,12 +24,14 @@ tasks:
     desc: "SSH connect"
     vars:
       HOST_IP:
-        sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_ip
+        sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_public_ipv4
+      COMMAND: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}}
     cmds:
       - echo ""
-      - echo "🚀 tasks-ssh - connect [ HOST_IP - {{.HOST_IP}} ]"
+      - echo "🚀 tasks-ssh - {{.TAKS}} [ HOST_IP - {{.HOST_IP}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo ""
-      - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}}
+      - echo {{.COMMAND}}
+      - "{{.COMMAND}}"
     requires:
       vars: [STAGE]
