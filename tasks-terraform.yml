@@ -71,7 +71,7 @@ tasks:
       - echo "🚀 tasks-terraform - plan [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, VAR_FILE_ARGS - {{.VAR_FILE_ARGS}}, STAGE - {{.STAGE}} ]"
       - 'echo "   cwd: $(pwd)"'
       - echo "terraform plan {{.VAR_FILE_ARGS}} -out=.terraform/tfplan"
-      # - terraform plan {{.VAR_FILE_ARGS}} -out=.terraform/tfplan
+      - terraform plan {{.VAR_FILE_ARGS}} -out=.terraform/tfplan
     requires:
       vars: [STAGE]
 
