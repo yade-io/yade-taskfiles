@@ -9,14 +9,31 @@ tasks:
     vars:
       HOST_IP:
         sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_public_ipv4
-      COMMAND: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}} "date"
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        ssh \
+          -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          -i ~/.ssh/id_rsa \
+          -p 22 ubuntu@{{.HOST_IP}} \
+          "date"
     cmds:
-      - echo ""
-      - echo "🚀 tasks-ssh - {{.TAKS}} [ HOST_IP - {{.HOST_IP}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - echo {{.COMMAND}}
-      - "{{.COMMAND}}"
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     HOST_IP: {{.HOST_IP}}"
+        echo ""
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
 
@@ -25,13 +42,29 @@ tasks:
     vars:
       HOST_IP:
         sh: cd 1-terraform/environment/{{.STAGE}} && terraform output -raw vm_public_ipv4
-      COMMAND: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p 22 ubuntu@{{.HOST_IP}}
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          -i ~/.ssh/id_rsa \
+          -p 22 \
+          ubuntu@{{.HOST_IP}}
     cmds:
-      - echo ""
-      - echo "🚀 tasks-ssh - {{.TAKS}} [ HOST_IP - {{.HOST_IP}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - echo {{.COMMAND}}
-      - "{{.COMMAND}}"
+      - |
+        echo ""
+        echo "🚀 {{.TAKS}} ($(pwd))"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     HOST_IP: {{.HOST_IP}}"
+        echo ""
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]

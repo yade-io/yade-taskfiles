@@ -4,55 +4,48 @@ version: 3
 silent: true
 
 tasks:
-  # =================
-  # === TERRAFORM ===
-  # =================
-  # init:
-  #   desc: "Terraform initialize"
-  #   dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
-  #   vars:
-  #     TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
-  #   cmds:
-  #     - |
-  #       if [ "$SKIP_TERRAFORM" == "true" ]; then
-  #         echo "SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
-  #         exit 0
-  #       fi
-
-  #       echo ""
-  #       echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-  #       echo "   cwd: $(pwd)"
-  #       echo ""
-  #       terraform init -upgrade
-  #   requires:
-  #     vars: [STAGE]
-
   init:
-    desc: "Terraform initialize"
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
-    cmds:
-      - |
-        if [ "$SKIP_TERRAFORM" == "true" ]; then
-          echo "SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
-          exit 0
-        fi
-
-        echo "TF_HTTP_PASSWORD: {{.TF_HTTP_PASSWORD}}, STAGE: {{.STAGE}}, GITLAB_HOST: {{.GITLAB_HOST}}, GITLAB_PROJECT_ID: {{.GITLAB_PROJECT_ID}}"
-        echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}}, GITLAB_HOST - {{.GITLAB_HOST}}, HTTP_USERNAME - {{.HTTP_USERNAME}}, HTTP_PASSWORD - ***, GITLAB_PROJECT_ID - {{.GITLAB_PROJECT_ID}} ]"
-        echo "   cwd: $(pwd)"
-        echo ""
-
+      SKIP_TERRAFORM: '{{default "false" .SKIP_TERRAFORM}}'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
         terraform init -reconfigure \
           -backend-config="address=https://{{.GITLAB_HOST}}/api/v4/projects/{{.GITLAB_PROJECT_ID}}/terraform/state/{{.STAGE}}" \
           -backend-config="lock_address=https://{{.GITLAB_HOST}}/api/v4/projects/{{.GITLAB_PROJECT_ID}}/terraform/state/{{.STAGE}}/lock" \
           -backend-config="unlock_address=https://{{.GITLAB_HOST}}/api/v4/projects/{{.GITLAB_PROJECT_ID}}/terraform/state/{{.STAGE}}/lock" \
-          -backend-config="username=abes140377" \
+          -backend-config="username={{.TF_HTTP_USERNAME}}" \
           -backend-config="password={{.TF_HTTP_PASSWORD}}" \
           -backend-config="lock_method=POST" \
           -backend-config="unlock_method=DELETE" \
           -backend-config="retry_wait_min=5"
+    cmds:
+      - |
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     GITLAB_HOST: {{.GITLAB_HOST}}"
+        echo "     HTTP_USERNAME: {{.TF_HTTP_USERNAME}}"
+        echo "     HTTP_PASSWORD: {{.TF_HTTP_PASSWORD}}"
+        echo "     GITLAB_PROJECT_ID: {{.GITLAB_PROJECT_ID}}"
+
+        if [ "$SKIP_TERRAFORM" == "true" ]; then
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE, GITLAB_HOST, GITLAB_PROJECT_ID]
 
@@ -61,16 +54,32 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}"
     vars:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
+      COMMAND: |
+        tflint && \
+        terraform validate && \
+        terraform fmt -check -diff -recursive
     cmds:
-      - echo ""
-      - echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - tflint
-      - terraform validate
-      - echo ""
-      - terraform fmt -check -diff -recursive
-      - echo ""
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))[ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+
+        if [ "$SKIP_TERRAFORM" == "true" ]; then
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
 
@@ -81,18 +90,34 @@ tasks:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
         sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        terraform plan {{.VAR_FILE_ARGS}} -out=.terraform/tfplan
     cmds:
       - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     VAR_FILE_ARGS: {{.VAR_FILE_ARGS}}"
+
         if [ "$SKIP_TERRAFORM" == "true" ]; then
-          echo "SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
           exit 0
         fi
 
-        echo ""
-        pwd
-        echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-        echo "   cwd: $(pwd)"
-        terraform plan {{.VAR_FILE_ARGS}} -out=.terraform/tfplan
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
+
     requires:
       vars: [STAGE]
 
@@ -103,18 +128,33 @@ tasks:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
         sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        terraform show -json .terraform/tfplan > .terraform/tfplan.tfgraph
     cmds:
       - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     VAR_FILE_ARGS: {{.VAR_FILE_ARGS}}"
+
         if [ "$SKIP_TERRAFORM" == "true" ]; then
-          echo "SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
           exit 0
         fi
 
-        echo ""
-        echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-        echo "   cwd: $(pwd)"
-        echo ""
-        terraform show -json .terraform/tfplan > .terraform/tfplan.tfgraph
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
 
@@ -126,27 +166,34 @@ tasks:
       AUTO_APPLY: '{{default "false" .AUTO_APPLY}}'
     cmds:
       - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     AUTO_APPLY: {{.AUTO_APPLY}}"
+
         if [ "$SKIP_TERRAFORM" == "true" ]; then
-          echo "SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
-          exit 0
-        fi
-        echo ""
-        echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-        echo "   cwd: $(pwd)"
-        echo ""
-
-        if [[ "{{.AUTO_APPLY}}" == true ]]; then
-          terraform apply .terraform/tfplan
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
           exit 0
         fi
 
-        echo "Do you want to apply the Terraform plan? (yes/No)"
-        read -r response
-        if [[ "{{.AUTO_APPLY}}" == true || "$response" =~ ^[yY][eE][sS]$ ]]; then
-          terraform apply .terraform/tfplan
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
         else
-          echo "Terraform apply aborted."
-          exit 0
+          if [[ "{{.AUTO_APPLY}}" == true ]]; then
+            terraform apply .terraform/tfplan
+            exit 0
+          else 
+            echo "Do you want to apply the Terraform plan? (yes/No)"
+            read -r response
+            if [[ "{{.AUTO_APPLY}}" == true || "$response" =~ ^[yY][eE][sS]$ ]]; then
+              terraform apply .terraform/tfplan
+            else
+              echo "Terraform apply aborted."
+              exit 0
+            fi
+          fi
         fi
     requires:
       vars: [STAGE]
@@ -158,12 +205,32 @@ tasks:
       TERRAFORM_DIR: '{{default "1-terraform" .TERRAFORM_DIR}}'
       VAR_FILE_ARGS:
         sh: 'if [ -f "{{.USER_WORKING_DIR}}/{{.TERRAFORM_DIR}}/environment/{{.STAGE}}/terraform.tfvars" ]; then echo "-var-file=terraform.tfvars"; else echo ""; fi'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        terraform destroy {{.VAR_FILE_ARGS}}
     cmds:
       - |
         echo ""
-        echo "🚀 tasks-terraform - {{.TASK}} [ TERRAFORM_DIR - {{.TERRAFORM_DIR}}, STAGE - {{.STAGE}} ]"
-        echo "   cwd: $(pwd)"
-        echo ""
-        terraform destroy {{.VAR_FILE_ARGS}}
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     TERRAFORM_DIR: {{.TERRAFORM_DIR}}"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     VAR_FILE_ARGS: {{.VAR_FILE_ARGS}}"
+
+        if [ "$SKIP_TERRAFORM" == "true" ]; then
+          echo ""
+          echo "   SKIP_TERRAFORM is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]

@@ -4,38 +4,71 @@ version: 3
 silent: true
 
 tasks:
-  # ===============
-  # === ANSIBLE ===
-  # ===============
   install:requirements:
     desc: "Install ansible requirements"
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-      ANSIBLE_GALAXY_PATH: '{{default "../.venv/bin/ansible-galaxy" .ANSIBLE_GALAXY_PATH}}'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        ansible-galaxy install -r requirements.yml --force
     cmds:
-      - echo ""
-      - echo "🚀 tasks-ansible - {{.TASK}} [ ANSIBLE_DIR - {{.ANSIBLE_DIR}}, ANSIBLE_GALAXY_PATH - {{.ANSIBLE_GALAXY_PATH}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - "{{.ANSIBLE_GALAXY_PATH}} install -r requirements.yml --force"
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     ANSIBLE_DIR: {{.ANSIBLE_DIR}}"
+
+        if [ "$SKIP_ANSIBLE" == "true" ]; then
+          echo ""
+          echo "   SKIP_ANSIBLE is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
 
   connectivity:test:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-    cmds:
-      - echo ""
-      - echo "🚀 tasks-ansible - {{.TASK}} [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - |
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
         ansible \
           -e ssh_private_key_file=~/.ssh/id_rsa \
           -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
           --private-key=~/.ssh/id_rsa \
           -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
           -m ping all
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     ANSIBLE_DIR: {{.ANSIBLE_DIR}}"
+
+        if [ "$SKIP_ANSIBLE" == "true" ]; then
+          echo ""
+          echo "   SKIP_ANSIBLE is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
 
@@ -43,16 +76,38 @@ tasks:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
+      COMMAND: |
+        ansible-inventory \
+          -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
+          --graph --vars
     cmds:
-      - echo ""
-      - echo "🚀 tasks-ansible - {{.TASK}} [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}} ]"
-      - 'echo "   cwd: $(pwd)"'
-      - echo ""
-      - ansible-inventory -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml --graph --vars
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     ANSIBLE_DIR: {{.ANSIBLE_DIR}}"
+
+        if [ "$SKIP_ANSIBLE" == "true" ]; then
+          echo ""
+          echo "   SKIP_ANSIBLE is set to true, skipping task {{.TASK}}."
+          exit 0
+        fi
+
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
 
-  playbook:site:tags:
+  playbook:site:
     dir: "{{.ANSIBLE_DIR}}"
     vars:
       ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
@@ -61,6 +116,8 @@ tasks:
         sh: basename "{{.USER_WORKING_DIR}}"
       TAGS_ARG: '{{if .TAGS}}--tags \""{{ .TAGS }}"\"{{end}}'
       VARIABLES_ARGS: '{{if .VARIABLES}}-e "{{.VARIABLES}}"{{end}}'
+      DEBUG: '{{default "false" .DEBUG}}'
+      DRY_RUN: '{{default "false" .DRY_RUN}}'
       COMMAND: |
         ansible-playbook \
           -e environment_type={{.STAGE}} \
@@ -74,118 +131,28 @@ tasks:
           "{{.PLAYBOOK}}"
     cmds:
       - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "     STAGE: {{.STAGE}}"
+        echo "     TAGS: {{.TAGS}}"
+        echo "     ANSIBLE_DIR: {{.ANSIBLE_DIR}}"
+        echo "     PLAYBOOK: {{.PLAYBOOK}}"
+        echo "     PROJECT_NAME: {{.PROJECT_NAME}}"
+
         if [ "$SKIP_ANSIBLE" == "true" ]; then
-          echo "SKIP_ANSIBLE is set to true, skipping task {{.TASK}}."
+          echo ""
+          echo "   SKIP_ANSIBLE is set to true, skipping task {{.TASK}}."
           exit 0
         fi
 
-        echo ""
-        echo "🚀 tasks-ansible - {{.TASK}} [ STAGE - {{.STAGE}}, TAGS - {{.TAGS}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}}, PROJECT_NAME - {{.PROJECT_NAME}} ]"
-        echo "   cwd: $(pwd)"
+        if [ "{{.DEBUG}}" == "true" ]; then
+          echo "     COMMAND: {{.COMMAND}}"
+        fi
 
-        echo "COMMAND: {{.COMMAND}}"
-
-        {{.COMMAND}}
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          {{.COMMAND}}
+        fi
     requires:
       vars: [STAGE]
-
-  # playbook:site:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}}
-  #   requires:
-  #     vars: [STAGE]
-
-  # playbook:site:tbc:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site:tbc [ STAGE - {{.STAGE}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - |
-  #       ansible-playbook \
-  #         -e environment_type={{.STAGE}} \
-  #         -e environment_name=sflab-docker-{{.STAGE}} \
-  #         -e ssh_private_key_file=~/.ssh/id_rsa \
-  #         -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
-  #         --private-key=~/.ssh/id_rsa \
-  #         -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
-  #         "site.yml"
-  #   requires:
-  #     vars: [STAGE]
-
-  # playbook:site:vars:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site:vars:tbc [ STAGE - {{.STAGE}}, VARIABLES - {{.VARIABLES}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}"
-  #   requires:
-  #     vars: [STAGE, VARIABLES]
-
-  # playbook:site:vars:tbc:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site:vars [ STAGE - {{.STAGE}}, VARIABLES - {{.VARIABLES}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - |
-  #       ansible-playbook \
-  #         -e environment_type={{.STAGE}} \
-  #         -e environment_name=sflab-docker-{{.STAGE}} \
-  #         -e "{{ .VARIABLES }}" \
-  #         -e ssh_private_key_file=~/.ssh/id_rsa \
-  #         -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
-  #         --private-key=~/.ssh/id_rsa \
-  #         --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
-  #         "site.yml"
-  #   requires:
-  #     vars: [STAGE, VARIABLES]
-
-  # playbook:site:tags:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site:tags [ STAGE - {{.STAGE}}, TAGS - {{.TAGS}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} --tags "{{ .TAGS }}"
-  #   requires:
-  #     vars: [STAGE, TAGS]
-
-  # playbook:site:vars:tags:
-  #   dir: "{{.ANSIBLE_DIR}}"
-  #   vars:
-  #     ANSIBLE_DIR: '{{default "2-ansible" .ANSIBLE_DIR}}'
-  #     PLAYBOOK: '{{default "site.yml" .PLAYBOOK}}'
-  #   cmds:
-  #     - echo ""
-  #     - echo "🚀 tasks-ansible - playbook:site:vars:tags [ STAGE - {{.STAGE}}, VARIABLES - {{.VARIABLES}}, TAGS - {{.TAGS}}, ANSIBLE_DIR - {{.ANSIBLE_DIR}}, PLAYBOOK - {{.PLAYBOOK}} ]"
-  #     - 'echo "   cwd: $(pwd)"'
-  #     - echo ""
-  #     - ansible-playbook -i inventory/hosts_{{.STAGE}}.yml {{.PLAYBOOK}} -e "{{ .VARIABLES }}" --tags "{{ .TAGS }}"
-  #   requires:
-  #     vars: [STAGE, VARIABLES, TAGS]
