@@ -126,7 +126,7 @@ tasks:
           -e ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa \
           {{ .VARIABLES_ARGS }} \
           --private-key=~/.ssh/id_rsa \
-          --inventory ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
+          -i ../1-terraform/environment/{{.STAGE}}/tf-output/ansible_inventory.yml \
           {{ .TAGS_ARG }} \
           "{{.PLAYBOOK}}"
     cmds:
