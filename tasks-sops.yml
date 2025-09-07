@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+silent: true
+
+tasks:
+  encryp:
+    desc: "Encrypt a file"
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        OUTPUT_FILE="sops.{{.SECRET_FILE}}"
+        OUTPUT_FILE=$(echo "$OUTPUT_FILE" | sed 's/\.\./\./g')
+
+        if [ "${DEBUG}" == "true" ]; then
+          echo "     SECRET_FILE: {{.SECRET_FILE}}"
+          echo "     OUTPUT_FILE: $OUTPUT_FILE"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          if [ "${DEBUG}" == "true" ]; then
+            echo "     COMMAND: sops --encrypt {{.SECRET_FILE}} > $OUTPUT_FILE"
+          fi
+          sops --encrypt {{.SECRET_FILE}} > "$OUTPUT_FILE"
+        fi
+    requires:
+      vars: [SECRET_FILE]
+
+  decrypt:
+    desc: "Decrypt a file"
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        # Determine the output filename based on file type
+        if [[ "{{.ENCRYPTED_FILE}}" == *".env" ]]; then
+          # For files ending with .env: remove 'sops' but keep the leading dot
+          OUTPUT_FILE=$(echo "{{.ENCRYPTED_FILE}}" | sed 's/^sops//')
+        else
+          # For other files: remove 'sops.'
+          OUTPUT_FILE=$(echo "{{.ENCRYPTED_FILE}}" | sed 's/^sops\.//')
+        fi
+
+        if [ "${DEBUG}" == "true" ]; then
+          echo "     ENCRYPTED_FILE: {{.ENCRYPTED_FILE}}"
+          echo "     OUTPUT_FILE: $OUTPUT_FILE"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          if [ "${DEBUG}" == "true" ]; then
+            echo "     COMMAND: sops --decrypt {{.ENCRYPTED_FILE}} > $OUTPUT_FILE"
+          fi
+          sops --decrypt {{.ENCRYPTED_FILE}} > "$OUTPUT_FILE"
+        fi
+    requires:
+      vars: [ENCRYPTED_FILE]
+
+  edit:
+    desc: "Edit a file with sops"
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        if [ "${DEBUG}" == "true" ]; then
+          echo "     ENCRYPTED_FILE: {{.ENCRYPTED_FILE}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          if [ "${DEBUG}" == "true" ]; then
+            echo "     COMMAND: sops edit {{.ENCRYPTED_FILE}}"
+          fi
+          sops edit "{{.ENCRYPTED_FILE}}"
+        fi
+    requires:
+      vars: [ENCRYPTED_FILE]
+
+  decrypt:all:
+    desc: Decrypt all files matching patterns defined in .sops.yaml
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        files=$(find . -maxdepth 1 -type f -name 'sops.*' -printf "%f\n")
+
+        for file in $files; do
+          task sops:decrypt ENCRYPTED_FILE="$file"
+        done
+
+  encrypt:all:
+    desc: Encrypt all files matching patterns defined in .sops.yaml
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        echo "Finding and encrypting files based on .sops.yaml creation rules..."
+
+        # Extract path_regex patterns from .sops.yaml and convert to simple patterns
+        path_regexes=$(yq eval '.creation_rules[].path_regex' .sops.yaml)
+
+        for regex in $path_regexes; do
+          echo "Processing regex: $regex"
+          
+          # Convert common regex patterns to simple filenames
+          if [[ "$regex" == "^secrets\\.yml$" ]]; then
+            filename="secrets.yml"
+          elif [[ "$regex" == "^\\.env$" ]]; then
+            filename=".env"
+          else
+            # For other patterns, try to extract the filename
+            filename=$(echo "$regex" | sed 's/\^//g' | sed 's/\$$//g' | sed 's/\\//g')
+          fi
+          
+          if [[ -f "$filename" ]]; then
+            echo "Found and encrypting: $filename"
+            task sops:encryp SECRET_FILE="$filename"
+          else
+            echo "File not found: $filename"
+          fi
+        done
