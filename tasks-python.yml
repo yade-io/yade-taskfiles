@@ -39,7 +39,7 @@ tasks:
       DEBUG: '{{default "false" .DEBUG}}'
       DRY_RUN: '{{default "false" .DRY_RUN}}'
       COMMAND: |
-        pip install -r requirements.txt
+        .venv/bin/pip install -r requirements.txt
     cmds:
       - |
         echo ""
