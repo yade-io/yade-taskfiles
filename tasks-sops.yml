@@ -3,7 +3,69 @@ version: 3
 
 silent: true
 
+vars:
+  SOPS_CONFIG_FILE: ".sops.yaml"
+
+env:
+  SOPS_AGE_KEY_FILE: "$HOME/.config/sops/age/keys.txt"
+
 tasks:
+  preconditions:check:
+    desc: Check for preconditions before running tasks
+    preconditions:
+      - sh: test -f {{.SOPS_CONFIG_FILE}}
+        msg: "SOPS configuration file not found: {{.SOPS_CONFIG_FILE}}"
+      - sh: test -f {{.SOPS_AGE_KEY_FILE}}
+        msg: "SOPS AGE key file not found: {{.SOPS_AGE_KEY_FILE}}"
+      - sh: test -f {{.SOPS_FILE}}
+        msg: "SOPS file not found: {{.SOPS_FILE}}"
+    cmd: echo "All preconditions met."
+    requires:
+      vars: [SOPS_FILE]
+    internal: true
+
+  validate:*:
+    desc: Validate a SOPS file against the SOPS configuration
+    vars:
+      SOPS_ENCRYPTED_FILE: "{{index .MATCH 0}}"
+    deps:
+      - task: preconditions:check
+        vars:
+          SOPS_FILE: "{{.SOPS_ENCRYPTED_FILE}}"
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        if [ "${DEBUG}" == "true" ]; then
+          echo "     SOPS_ENCRYPTED_FILE: {{.SOPS_ENCRYPTED_FILE}}"
+          echo "     SOPS_CONFIG_FILE: {{.SOPS_CONFIG_FILE}}"
+        fi
+
+        if [ "{{.DRY_RUN}}" == "true" ]; then
+          echo "     Skipping command execution due to DRY_RUN."
+        else
+          yq e '.sops' "{{.SOPS_ENCRYPTED_FILE}}"
+          sops -d "{{.SOPS_ENCRYPTED_FILE}}" > /dev/null
+        fi
+
+  validate:all:
+    desc: Validate all SOPS files matching patterns defined in .sops.yaml
+    deps:
+      - task: preconditions:check
+        vars:
+          SOPS_FILE: "{{.SOPS_ENCRYPTED_FILE}}"
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+
+        files=$(find . -maxdepth 1 -type f -name 'sops.*' -printf "%f\n")
+
+        for file in $files; do
+          task sops:validate:"$file"
+        done
+
   encryp:
     desc: "Encrypt a file"
     cmds:

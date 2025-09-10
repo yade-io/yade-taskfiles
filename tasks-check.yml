@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+silent: true
+
+tasks:
+  envs:
+    desc: Check if required environment variables are set
+    vars:
+      ENVS: '{{default "" .ENVS }}'
+    cmds:
+      - |
+        echo ""
+        echo "🚀 {{.TASK}} ($(pwd))"
+        
+        MISSING_ENVS=0
+
+        for ENV in {{.ENVS}}; do
+          if [ -z "${!ENV}" ]; then
+            echo "❌ Environment variable '$ENV' is not set."
+            MISSING_ENVS=$((MISSING_ENVS + 1))
+          else
+            if [ "${DEBUG}" == "true" ]; then
+              echo "✅ Environment variable '$ENV' is set."
+            fi
+          fi
+        done
+
+        if [ $MISSING_ENVS -ne 0 ]; then
+          echo ""
+          echo "❗️ Missing $MISSING_ENVS required environment variable(s). Please set them and try again."
+          exit 1
+        else
+          echo ""
+          echo "✅ All required environment variables are set."
+        fi
